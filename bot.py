@@ -94,12 +94,14 @@ class Bot:
             logging.error('Received an empty comment, restarting the stream...')
             sys.exit(1)
         for keyword in self.keywords:
-            if keyword in comment.body.lower():
+            if keyword in comment.body.lower() and not comment.author == self.config['username']:
                 try:
                     comment.reply(random.choice(self.phrases))
+                    logging.info("Replied to '{}' in '{}' ({}) ".format(
+                        comment.author, comment.link_title, comment.link_permalink
+                    ))
                 except APIException as err:
                     logging.error(err)
-                logging.info("Replied to: {} in {}".format(comment.id, comment.link_permalink))
 
     @staticmethod
     def initialize_logger():

@@ -1,4 +1,6 @@
 /logs
-config.ini
 .idea
 .git
+config.ini
+config_jon.ini
+config_bran.ini
