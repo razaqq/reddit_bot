@@ -48,8 +48,9 @@ class Config(cp.ConfigParser):
             'user_agent': 'some bot by u/someone',
             'username': 'someusername',
             'password': 'password',
-            'keywords': ["some", "keywords", "here"],
-            'phrases': ["Im a bot", "I am working"]
+            'keywords': json.dumps(["some", "keywords", "here"]),
+            'phrases': json.dumps(["Im a bot", "I am working"]),
+            'enable_logging': True
         }
         with open(self.file, 'w') as file:
             config.write(file)
@@ -64,6 +65,7 @@ class Bot:
         self.config = c['MAIN']
         self.phrases = json.loads(self.config['phrases'])
         self.keywords = json.loads(self.config['keywords'])
+        self.logging = self.config['enable_logging'] == 'True'
         self.r = self.auth()
 
     def auth(self):
@@ -97,9 +99,10 @@ class Bot:
             if keyword in comment.body.lower() and not comment.author == self.config['username']:
                 try:
                     comment.reply(random.choice(self.phrases))
-                    logging.info("Replied to '{}' in '{}' ({}) ".format(
-                        comment.author, comment.link_title, comment.link_permalink
-                    ))
+                    if self.logging:
+                        logging.info("Replied to '{}' in '{}' ({}) ".format(
+                            comment.author, comment.link_title, comment.link_permalink
+                        ))
                 except APIException as err:
                     logging.error(err)
 
