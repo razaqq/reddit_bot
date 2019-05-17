@@ -50,7 +50,8 @@ class Config(cp.ConfigParser):
             'password': 'password',
             'keywords': json.dumps(["some", "keywords", "here"]),
             'phrases': json.dumps(["Im a bot", "I am working"]),
-            'enable_logging': True
+            'enable_logging': True,
+            'special_phrases': json.dumps({'special_keyword': 'special_phrase'})
         }
         with open(self.file, 'w') as file:
             config.write(file)
@@ -65,6 +66,7 @@ class Bot:
         self.config = c['MAIN']
         self.phrases = json.loads(self.config['phrases'])
         self.keywords = json.loads(self.config['keywords'])
+        self.special_phrases = json.loads(self.config['special_phrases'])
         self.logging = self.config['enable_logging'] == 'True'
         self.r = self.auth()
 
@@ -96,9 +98,14 @@ class Bot:
             logging.error('Received an empty comment, restarting the stream...')
             sys.exit(1)
         for keyword in self.keywords:
-            if keyword in comment.body.lower() and not comment.author == self.config['username']:
+            text = comment.body.lower()
+            if keyword in text and not comment.author == self.config['username']:
+                phrase = random.choice(self.phrases)  # choose random phrase
+                for special_keyword, response in self.special_phrases.items():  # overwrite with special phrase
+                    if special_keyword in text:
+                        phrase = response
                 try:
-                    comment.reply(random.choice(self.phrases))
+                    comment.reply(phrase)
                     if self.logging:
                         logging.info("Replied to '{}' in '{}' ({}) ".format(
                             comment.author, comment.link_title, comment.link_permalink
