@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.7
 import praw
 from praw.exceptions import *
 from prawcore.exceptions import OAuthException, RequestException, ResponseException
